@@ -55,7 +55,7 @@ libraryDependencies += "com.dropbox.core" % "dropbox-core-sdk" % "3.1.5"
 publishArtifact in(Compile, packageDoc) := false
 
 //// Конфиг для тестов
-///javaOptions in Test += "-Dconfig.file=conf/application.test.conf"
+javaOptions in Test += "-Dconfig.file=conf/application.test.conf"
 
 //// Конфиг для разработки
 //javaOptions in Compile += "-Dconfig.file=conf/application.dev.conf"

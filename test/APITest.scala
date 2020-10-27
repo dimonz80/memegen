@@ -17,6 +17,9 @@ import java.util.Base64
 import controllers.SaveMemeRequest
 
 
+
+
+
 /**
  * Представление теста для генерации документации
  *
@@ -37,6 +40,7 @@ class APITestSuite extends PlaySpec with BeforeAndAfterAll {
     .overrides(bind[ImageService].to[InMemoryImageService])
     .overrides(bind[MemeMetadataService].to[InMemoryMemeMetadataService])
     .overrides(bind[UserService].to[ImMemoryUserService])
+    //.overrides(bind[DBApi].to[DBAPiMock])
     .build()
 
 

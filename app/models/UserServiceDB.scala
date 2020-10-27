@@ -6,7 +6,7 @@ import anorm.{SQL, SqlStringInterpolation}
 
 class UserServiceDB @Inject()(dbAPI: DBApi) extends UserService {
 
-  val db = dbAPI.database("default")
+  lazy val db = dbAPI.database("default")
 
   val parser = anorm.Macro.namedParser[User]
 

@@ -46,6 +46,9 @@ libraryDependencies ++= Seq(
 
 libraryDependencies += "com.dripower" %% "play-circe" % "2812.0"
 
+//dropbox
+libraryDependencies += "com.dropbox.core" % "dropbox-core-sdk" % "3.1.5"
+
 // Disable genereate doc when dist
 // sources in(Compile, doc) := Seq.empty
 

@@ -1,0 +1,100 @@
+
+
+
+import java.io.{BufferedReader, FileOutputStream, InputStreamReader}
+
+import scala.jdk.CollectionConverters._
+
+
+import com.dropbox.core.{DbxAppInfo, DbxRequestConfig, DbxWebAuth}
+import com.dropbox.core.v2.DbxClientV2
+
+import scala.util.Try
+
+
+object Credentials {
+  val app_key = "1zjkda0bzj3vdsk"
+  val app_secret = "heogqoulh5j2c2k"
+  val token = "PrcBN89UVckAAAAAAAAAAepI9RR25NahNgXxDYfQytViJBRcJBIH8lLStgsSDaY6"
+}
+
+
+object Main {
+
+
+
+  import Credentials._
+
+
+    val appInfo = new DbxAppInfo(app_key, app_secret)
+    val config = new DbxRequestConfig("azavea/rf-dropbox-test")
+
+    val webAuth = new DbxWebAuth(config, appInfo)
+    val authRequest = DbxWebAuth.newRequestBuilder().withNoRedirect().build()
+//    val authUrl = webAuth.authorize(authRequest)
+//
+//    println(s"1. Go to: ${authUrl}")
+//    println("2. Click 'Allow' (you may have to log in)")
+//    println("3. Copy the authrozation code and paste here:")
+//
+//    val code = new BufferedReader(new InputStreamReader(System.in)).readLine().trim()
+//    val authFinish = webAuth.finishFromCode(code)
+
+    //println(s"Access Token = ${authFinish.getAccessToken}")
+
+    //val client = new DbxClientV2(config, authFinish.getAccessToken)
+
+    val client = new DbxClientV2(config, token)
+
+    /** BASIC ACCOUNT TEST * */
+    println("==> TEST BASIC ACCOUNT DETAILS")
+    val account = client.users.getCurrentAccount
+    println(s"Linked Account is ${account.getName.getDisplayName}")
+
+    val totalSpace = client.users.getSpaceUsage.getAllocation.getIndividualValue.getAllocated
+    val usedSpace = client.users.getSpaceUsage.getUsed
+    println(s"${totalSpace - usedSpace} of ${totalSpace} bytes available")
+
+    /** UPLOAD ITEM TEST * */
+//     println("==> TEST UPLOADING LOCAL FILE")
+//     val localResourcePath = "./memes.json"
+//     val targetDropboxPath = "./memes.json"
+//     val inputStream = getClass.getResourceAsStream(localResourcePath)
+//     try {
+//       val metadata = client.files
+//         .uploadBuilder(targetDropboxPath)
+//         .uploadAndFinish(inputStream)
+//
+//       println(s"Uploaded file ${metadata.getPathLower}")
+//     } finally {
+//       inputStream.close()
+//     }
+
+    /** LIST ITEMS TEST * */
+    // NOTE getEntries returns a Java.util.List, which
+    // is mutable, since it fetches only the first N
+    // entries. May have to find a way around this.
+    // We use JavaConversions to automatically convert
+    // to a Scala list.
+    // See https://dropbox.github.io/dropbox-sdk-java/api-docs/v2.1.x/com/dropbox/core/v2/files/DbxUserFilesRequests.html#listFolder-java.lang.String-
+    // and also https://www.dropbox.com/developers/documentation/java#tutorial
+//    println("==> TEST LISTING FILES")
+//    val items = client.files.listFolder("").getEntries.asScala
+//    for (item <- items)
+//      println(item.getPathLower)
+//
+//    /** DOWNLOAD ITEMS TEST * */
+//    println("==> DOWNLOAD ITEM TEST")
+//    val outputStream = new FileOutputStream("./memes.json")
+//    val downloadedFile = Try {
+//      client.files
+//        .downloadBuilder(targetDropboxPath)
+//        .download(outputStream)
+//    }
+//    outputStream.close()
+//
+//    println(s"Downloaded file ${downloadedFile}")
+
+}
+
+import  Main._

@@ -1,0 +1,4 @@
+{
+  "success" : false,
+  "error_message" : "Some hopefully-useful statement about why it failed"
+}

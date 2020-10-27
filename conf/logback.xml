@@ -1,0 +1,51 @@
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%-5level - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+     <file>${application.home:-.}/logs/application.log</file>
+     <encoder>
+       <pattern>%date [%level] from %logger in %thread - %message%n%xException</pattern>
+     </encoder>
+    </appender>
+
+    <appender name="SQL_DUMP" class="ch.qos.logback.core.FileAppender">
+     <file>${application.home:-.}/logs/sql_dump.log</file>
+     <encoder>
+       <pattern>%date [%level] - %message%n</pattern>
+     </encoder>
+    </appender>
+
+    <!-- logger name="com.jolbox.bonecp" level="DEBUG">
+        <appender-ref ref="SQL_DUMP" />
+    </logger -->
+ 
+    <logger name="play" level="WARN">
+        <appender-ref ref="FILE" />
+    </logger>
+
+    <logger name="application" level="WARN">
+        <appender-ref ref="FILE" /> 
+    </logger>
+
+    
+    <!-- https://www.playframework.com/documentation/2.7.x/ScalaDatabase -->
+
+    <logger name="org.jdbcdslog.ConnectionLogger" level="OFF"  >
+        <appender-ref ref="SQL_DUMP" />
+    </logger>
+     
+    <logger name="org.jdbcdslog.StatementLogger"  level="INFO" > 
+        <appender-ref ref="SQL_DUMP" />
+    </logger>
+        
+    <logger name="org.jdbcdslog.ResultSetLogger"  level="OFF"  >
+        <appender-ref ref="SQL_DUMP" />
+    </logger> 
+
+
+</configuration>
+

@@ -1,0 +1,317 @@
+@(apiKey : String)(implicit request : Request[AnyContent])
+
+
+@inputText(dataLink : String, label : String, placeHolder : String = "", params : Map[String,String] = Map()) = {
+    <div class="input-group mb-3"> 
+        <label>@label</label> 
+        <input  data-link='@dataLink' class="form-control form-control-sm" placeholder="@placeHolder" aria-label="@label" @params.map { case (k,v) => @k="@v"  } >
+        
+    </div>
+     
+}
+
+@textarea(dataLink : String, label : String, placeHolder : String = "", params : Map[String,String] = Map()) = {
+    <div class="input-group mb-3"> 
+        <label>@label</label> 
+        <textarea data-link='@dataLink' class="form-control form-control-sm" placeholder="@placeHolder" aria-label="@label" @params.map { case (k,v) => @k="@v"  } ></textarea>  
+        
+    </div>
+     
+}
+
+@select(dataLink : String, label : String,  options : Map[String,String], params : Map[String,String] = Map()) = {
+    <div class="input-group mb-3" > 
+        <label>@label</label> 
+        <select data-link='@dataLink' class="form-control form-control-sm"  > 
+            @options.map { case (k,v) =>
+                <option value='@v'>@k</option>
+            }
+        </select>
+    </div>
+     
+}
+ @main("Meme generator") {
+
+        <style type="text/css">
+ 
+            .meme-template-mini-img { 
+                width: 5em;
+                height: 5em;
+                margin: 0.2em;
+                display: inline-block;
+            }
+            .meme-template-img {
+                max-width: 100%;
+                max-height: 20em;
+            }
+            .meme-template-list {
+                height: 7em;
+                overflow-y: hidden;
+                overflow-x: scroll;
+                width: 100%;
+                white-space: nowrap;
+            }
+            .meme-template-name {
+                text-align: center;
+                width: 100%
+            }
+            input[type=number].form-control  {
+                max-width:  7em;
+                text-align: right;
+            }
+            input[type=color].form-control  {
+                max-width:  7em;
+                text-align: right;
+            }
+            .input-group label {
+                width: 10em;
+                text-align: right;
+                padding-right: 1em;
+            }
+            .meme-request {
+                max-width: 50em;
+            }
+            
+        </style>
+
+        <div id='pageContent'></div>
+
+        <!-- TEMPLATE -->
+        <script type="text/x-jsviews" id='pageTemplate'>
+            <div style='left:0;top:0;width:100%;height:100%;opacity:0.9; background:white;z-index:1000;position:fixed;' data-link='visible{:_lockScreen_}'>
+                <div class="text-center text-align pt-25 w-100 h-100" style="margin-top: 25%">
+                    <div data-link='visible{:_lockScreen_}' class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Waiting...</span>
+                    </div>
+                </div> 
+            </div>
+
+            {^{for model}}
+            <div class="container">
+                <h1 class='text-center'>Meme generator</h1>
+                <div class="row">
+                    <div class="col-2">
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link active" href="#">Active</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Link</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Link</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-10"> 
+                         <div class='row'>
+                            <div class='col meme-template-list' >
+                            {^{for templates}}
+                                {^{on ~root.selectTemplate #index }}
+                                    <img data-link='src{:url}' class="meme-template-mini-img"> 
+                                {{/on}}
+                            {{/for}}
+                            </div> 
+                        </div> 
+                        {^{for selectedTemplate}}  
+                            <div class='row'>
+                                <h1 class='text-center w-100'>{^{:name}}</h1>
+                            </div>
+                            <div class="row ">  
+                                 <div class='col text-center'> 
+                                    <img data-link='src{:url}' class="meme-template-img"> 
+                                    <div class='p-2 mt-2 bg-white rounded' data-link='visible{:generated}'> 
+                                        @inputText("name","name")
+                                        @textarea("comment","comment")  
+                                        <button type="button" class="btn btn-primary" data-link='{on ~root.saveMeme}disabled{:waiting}'>Save it</button>
+                                    
+                                    </div>
+                                </div>
+                                
+                                <div class='col meme-request'> 
+                                    {^{for request}} 
+                                        <div class='shadow-sm p-3  mb-3 bg-white rounded'>  
+                                             @select("font","font",Map("arial" -> "arial","impact" -> "impact"))
+                                             @inputText("max_font_size","max_font_size","", Map("type" -> "number"))
+                                              <button  type="button" class="btn btn-light btn-sm" data-link='{on ~root.addBox}'>add box</button>
+                                        </div>
+                                        
+                                        {^{for boxes }}
+                                                <div class='shadow-sm p-2 mt-2 bg-white rounded'>  
+                                                   
+                                                    Box {^{:#index + 1}} 
+                                                     <button type="button" class="close" data-link='{on ~root.deleteBox #index}' aria-label="delete box">
+                                                      <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                    <textarea class='form-control form-control-sm w-100' data-link='text'></textarea>
+
+                                                    <a class="btn btn-link" data-link='{on ~root.toggleBoxDetails #index}'>{^{if _visible_}} Hide {{else}} Details {{/if}}</a>
+                                                    <div data-link='visible{:_visible_}'>
+                                                        @inputText("x","x","", Map("type" -> "number"))
+                                                        @inputText("y","y","", Map("type" -> "number"))
+                                                        @inputText("width","width","", Map("type" -> "number"))
+                                                        @inputText("height","height","", Map("type" -> "number"))
+                                                        @inputText("outline_color","outline_color","", Map("type" -> "color"))
+                                                    </div>
+
+                                                </div>
+                                        {{/for}}
+                                    {{/for}}
+
+                                    <div class="p-3 text-center ">
+                                        <button type="button" class="btn btn-success" data-link='{on ~root.generateMeme}disabled{:waiting}'>Generate meme</button>  
+                                        
+                                    </div>
+
+                                </div> 
+                            </div>  
+                        {{/for}} 
+                    </div>  
+                </div>
+            </div>
+            {{/for}}
+
+            <div class="bg-info clearfix">
+ 
+            </div>
+        </script>
+        <!-- END OF TEMPLATE -->
+
+        <!-- Routes helpers -->
+        @helper.javascriptRouter("API")(
+            controllers.routes.javascript.MemesController.templates,
+            controllers.routes.javascript.MemesController.memes,
+            controllers.routes.javascript.MemesController.meme, 
+            controllers.routes.javascript.MemesController.saveMeme,  
+            controllers.routes.javascript.MemesController.generateMeme,
+            controllers.routes.javascript.MemesController.search, 
+            controllers.routes.javascript.MemesController.deleteMeme,
+            controllers.routes.javascript.MemesController.image 
+        )
+
+
+        <script type="text/javascript">
+            PAGE = {
+                headers : {
+                    "API-Key" : '@apiKey'
+                },
+                model : {
+                    templates : [],
+                    selectedTemplate : {}
+                },
+                link : function(){
+                    $.templates('#pageTemplate').link( '#pageContent',this)
+                },
+                processError : function(err){
+                    console.log(err)
+                    alert(err.responseText)
+                },
+
+                lockScreen : function(){
+                    $.observable(this).setProperty("_lockScreen_",true);
+                },
+                unlockScreen : function(){
+                    $.observable(this).setProperty("_lockScreen_",false);
+                },
+                
+                loadTemplates : function(){
+                    var self = this
+                    return API.controllers.MemesController.templates().ajax({
+                        headers : self.headers,
+                        cache : false
+                    }).then(function(tepmlates){
+                        $.observable(self.model).setProperty("templates",tepmlates)
+                    }).fail(function(err){
+                        self.processError(err)
+                    })
+                },
+                selectTemplate : function(num){
+                    var self = this
+                    var template = JSON.parse(JSON.stringify(self.model.templates[num]))
+                    var boxes = []
+                    for(var i=0;i<template.box_count;i++){
+                        boxes.push({})
+                    }
+
+                    template.request = {
+                        template_id : template.id, 
+                        max_font_size : 50,
+                        boxes : boxes
+                    }
+
+                     
+                    $.observable(self.model).setProperty("selectedTemplate",template)
+                },
+
+                generateMeme : function(){
+                    var self = this
+                    self.lockScreen()
+                   
+                    var request = self.model.selectedTemplate.request
+                     API.controllers.MemesController.generateMeme().ajax({
+                        headers : self.headers, 
+                        data : JSON.stringify(request),
+                        contentType : "application/json"
+                    }).then(function(data){ 
+                        $.observable(self.model.selectedTemplate).setProperty("url" , "data:image/jpeg;base64," + data)  
+                        $.observable(self.model.selectedTemplate).setProperty("generated",true)
+                    }).fail(
+                        self.processError
+                    ).always(function(){
+                       self.unlockScreen()
+                    })
+
+                },
+
+                saveMeme : function(){ 
+                    var self = this  
+
+                    self.lockScreen()
+
+                    var data = {
+                        metadata    : {
+                            name    : self.model.selectedTemplate.name,
+                            comment : self.model.selectedTemplate.model
+                        },
+                        base64Image : self.model.selectedTemplate.url.replace(/^data\:image\/jpeg;base64,/,"")
+                    }
+
+                    API.controllers.MemesController.saveMeme().ajax({
+                      headers : self.headers, 
+                      data: JSON.stringify(data),  
+                      contentType: "application/json"
+                    }).then(function(id){
+                         alert("done")
+                    }).fail(
+                        self.processError
+                    ).always(function(){
+                         self.unlockScreen()
+                    })   
+                },
+
+                addBox : function(){
+                    $.observable(this.model.selectedTemplate.request.boxes).insert({})
+                },
+                deleteBox : function(idx){
+                    $.observable(this.model.selectedTemplate.request.boxes).remove(idx)
+                },
+                
+                toggleBoxDetails : function(idx){
+                    var flag = this.model.selectedTemplate.request.boxes[idx]._visible_
+                    $.observable(this.model.selectedTemplate.request.boxes[idx]).setProperty("_visible_",!flag)
+                }
+            }
+
+            $(document).ready(function(){
+                PAGE.link()
+                PAGE.loadTemplates().then(function(){
+                    PAGE.selectTemplate(0)
+                })
+                
+            })
+
+        </script>
+}

@@ -1,0 +1,23 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Map static resources from the /public folder to the /assets URL path
+GET          /assets/*file            controllers.Assets.at(path="/public", file)
+
+GET          /                        controllers.MemesController.index(apiKey ?= "")
+GET          /bootstrap               controllers.MemesController.bootrap(apiKey ?= "")
+
+GET          /api/templates           controllers.MemesController.templates
+GET          /api/memes               controllers.MemesController.memes
+GET          /api/meme/:id            controllers.MemesController.meme(id : Long)
+POST         /api/meme                controllers.MemesController.saveMeme
+POST         /api/generate            controllers.MemesController.generateMeme
+GET          /api/search              controllers.MemesController.search(query : String ?= ".*")
+DELETE       /api/delete/:id          controllers.MemesController.deleteMeme(id : Long)
+GET          /api/image/:name         controllers.MemesController.image(name : String)
+
+
+
+
+

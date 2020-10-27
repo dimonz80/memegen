@@ -79,7 +79,7 @@
         <!-- TEMPLATE -->
         <script type="text/x-jsviews" id='pageTemplate'>
             <div style='left:0;top:0;width:100%;height:100%;opacity:0.9; background:white;z-index:1000;position:fixed;' data-link='visible{:_lockScreen_}'>
-                <div class="text-center text-align pt-25 w-100 h-100" style="margin-top: 25%">
+                <div class="text-center text-align pt-25 w-100 h-100" style="margin-top: 25%;position: fixed;">
                     <div data-link='visible{:_lockScreen_}' class="spinner-border text-primary" role="status">
                         <span class="sr-only">Waiting...</span>
                     </div>
@@ -93,16 +93,16 @@
                     <div class="col-2">
                         <ul class="nav flex-column">
                             <li class="nav-item">
-                                <a class="nav-link active" href="#">Active</a>
+                                <a class="nav-link active" href="#">Link 1</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="#">Link</a>
+                                <a class="nav-link" href="#">Link 2</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="#">Link</a>
+                                <a class="nav-link" href="#">Link 3</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+                                <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Link 4</a>
                             </li>
                         </ul>
                     </div>
@@ -162,16 +162,36 @@
                                     {{/for}}
 
                                     <div class="p-3 text-center ">
-                                        <button type="button" class="btn btn-success" data-link='{on ~root.generateMeme}disabled{:waiting}'>Generate meme</button>  
-                                        
+                                        <button type="button" class="btn btn-success" data-link='{on ~root.generateMeme}disabled{:waiting}'>Generate meme</button>   
                                     </div>
 
                                 </div> 
                             </div>  
                         {{/for}} 
-                    </div>  
+                        <h2 class='w-100'>My memes</h2>
+                        <button class='btn btn-primary' data-link='{on ~root.getMemes}'>Update meme list</button>
+                        <div class='row pt-3'>  
+                            {^{for memes }}
+                                <div class="card m-2 text-center" style="width: 18rem;">
+                                    <img data-link='src{:url}' class="card-img-top" alt="...">
+                                    <div class="card-body">
+                                        <button type="button" class="close"  data-link='{on ~root.deleteMeme id}' aria-label="delete meme">
+                                           <span aria-hidden="true">&times;</span>
+                                        </button>
+                                        <h5 class="card-title text-center" data-link='name' contenteditable="true"></h5>
+                                        <p class="card-text" data-link='comment' contenteditable="true"></p> 
+                                        <button class='btn btn-outline-primary btn-sm' data-link='{on ~root.updateMeme #index}'>Save</button>
+                                        
+                                    </div>
+                                </div>
+                            {{/for}}
+                            
+                        </div>
+                    </div>   
                 </div>
             </div>
+
+
             {{/for}}
 
             <div class="bg-info clearfix">
@@ -274,7 +294,7 @@
                     var data = {
                         metadata    : {
                             name    : self.model.selectedTemplate.name,
-                            comment : self.model.selectedTemplate.model
+                            comment : self.model.selectedTemplate.comment
                         },
                         base64Image : self.model.selectedTemplate.url.replace(/^data\:image\/jpeg;base64,/,"")
                     }
@@ -292,6 +312,51 @@
                     })   
                 },
 
+                updateMeme : function(idx){
+                    var self = this
+                    
+                    var meme = {
+                        metadata : self.model.memes[idx],
+                    }
+                    
+                    API.controllers.MemesController.saveMeme().ajax({
+                      headers : self.headers, 
+                      data: JSON.stringify(meme),  
+                      contentType: "application/json"
+                    }).then(function(id){
+                         alert("done")
+                    }).fail(
+                        self.processError
+                    ).always(function(){
+                         self.unlockScreen()
+                    })   
+                },
+
+                getMemes : function(){
+                    var self = this
+                    API.controllers.MemesController.memes().ajax({
+                        headers : self.headers,
+                        cache : false
+                    }).then(function(memes){
+                        $.observable(self.model).setProperty("memes",memes)
+                    }).fail(self.processError)
+                },
+
+                 deleteMeme : function(id){
+                    var self = this
+                    
+                    API.controllers.MemesController.deleteMeme(id).ajax({
+                        headers : self.headers
+                    }).then(function(){
+                        self.getMemes()
+                    }).fail(
+                        self.processError
+                    ).always(function(){
+                        self.unlockScreen()
+                    })
+                },
+
+
                 addBox : function(){
                     $.observable(this.model.selectedTemplate.request.boxes).insert({})
                 },
@@ -302,7 +367,9 @@
                 toggleBoxDetails : function(idx){
                     var flag = this.model.selectedTemplate.request.boxes[idx]._visible_
                     $.observable(this.model.selectedTemplate.request.boxes[idx]).setProperty("_visible_",!flag)
-                }
+                },
+
+
             }
 
             $(document).ready(function(){
@@ -310,6 +377,7 @@
                 PAGE.loadTemplates().then(function(){
                     PAGE.selectTemplate(0)
                 })
+                PAGE.getMemes()
                 
             })
 

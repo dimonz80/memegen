@@ -18,7 +18,9 @@ class StartupModule extends AbstractModule {
     binder().bind(classOf[RemoteMemesService]).to(classOf[RemoteMemesServiceImpl])
     //binder().bind(classOf[RemoteMemesService]).to(classOf[MockRemoteMemesService])
 
-    binder().bind(classOf[ImageService]).to(classOf[InMemoryImageService])
+    binder().bind(classOf[ImageService]).to(classOf[ImageServiceDropBox])
+
+    //binder().bind(classOf[ImageService]).to(classOf[InMemoryImageService])
     //binder().bind(classOf[ImageService]).to(classOf[ImageServiceFS])
 
     //binder().bind(classOf[MemeMetadataService]).to(classOf[InMemoryMemeMetadataService])

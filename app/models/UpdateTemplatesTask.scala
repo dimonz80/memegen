@@ -39,6 +39,6 @@ class UpdateTemplatesTask @Inject()(app: Application,
     })
   }
 
-   start()
+   //start()
 
 }

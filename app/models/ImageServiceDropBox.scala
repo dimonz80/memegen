@@ -6,6 +6,10 @@ import com.dropbox.core.v2.DbxClientV2
 import com.dropbox.core.{DbxAppInfo, DbxRequestConfig, DbxWebAuth}
 import play.api.Configuration
 
+/**
+ * Реализация хранения файов в DropBox
+ * @param conf
+ */
 @Singleton
 class ImageServiceDropBox @Inject()(conf : Configuration) extends ImageService {
 

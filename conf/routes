@@ -16,7 +16,7 @@ POST         /api/generate            controllers.MemesController.generateMeme
 GET          /api/search              controllers.MemesController.search(query : String ?= ".*")
 DELETE       /api/delete/:id          controllers.MemesController.deleteMeme(id : Long)
 GET          /api/image/:name         controllers.MemesController.image(name : String)
-
+GET          /apiDoc                  controllers.MemesController.apiDoc
 
 
 

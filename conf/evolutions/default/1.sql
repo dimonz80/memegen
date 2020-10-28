@@ -6,10 +6,10 @@ create table "User"(
 );
 
 
-insert into "User"(name,apiKey) values ("User1",111);
-insert into "User"(name,apiKey) values ("User2",222);
-insert into "User"(name,apiKey) values ("User3",333);
-insert into "User"(name,apiKey) values ("User4",444)
+insert into "User"(name,apiKey) values ('User1','111');
+insert into "User"(name,apiKey) values ('User2','222');
+insert into "User"(name,apiKey) values ('User3','333');
+insert into "User"(name,apiKey) values ('User4','444');
 
 
 create table MemeMetadata(

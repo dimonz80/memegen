@@ -11,7 +11,7 @@ import play.api.mvc._
 import play.api.libs.circe.Circe
 import io.circe.syntax._
 import io.circe.parser.decode
-import models.{ApplicationException, ImageService, MemeBox, MemeMetadata, MemeRequest, MemeTemplate, MemesService}
+import models.{APIDescription, ApplicationException, ImageService, MemeBox, MemeMetadata, MemeRequest, MemeTemplate, MemesService, RoutingDocumentation}
 import play.api.http.{ContentTypes, HttpEntity}
 
 import scala.concurrent.ExecutionContext
@@ -29,6 +29,7 @@ class MemesController @Inject()(
                                  val controllerComponents: ControllerComponents,
                                  memesService: MemesService,
                                  apiAction: APIAction,
+                                 routingDocumentation: RoutingDocumentation,
                                  implicit val ec: ExecutionContext
                                ) extends BaseController with Circe {
 
@@ -37,11 +38,12 @@ class MemesController @Inject()(
     Ok(views.html.apiTestPage(apiKey))
   }
 
-  def bootrap(apiKey : String) = Action { implicit request =>
+
+  def bootrap(apiKey: String) = Action { implicit request =>
     Ok(views.html.bootstrap(apiKey))
   }
 
-
+  @APIDescription("Get memes templates")
   def templates = apiAction { implicit request =>
     apiAction.withUser { implicit user =>
       Ok(memesService.templates.asJson).as(ContentTypes.JSON)
@@ -49,6 +51,7 @@ class MemesController @Inject()(
   }
 
 
+  @APIDescription("Generate new meme ")
   def generateMeme = apiAction { request =>
     import ErrorMessage._
 
@@ -68,12 +71,16 @@ class MemesController @Inject()(
     }
   }
 
+
+  @APIDescription("Get all user's meme")
   def memes = apiAction { implicit request =>
     apiAction.withUser { implicit user =>
       Ok(memesService.memes.asJson).as(ContentTypes.JSON)
     }
   }
 
+
+  @APIDescription("Get meme by id")
   def meme(id: Long) = apiAction { implicit request =>
     apiAction.withUser { implicit user =>
       memesService.meme(id).map { meme =>
@@ -84,12 +91,15 @@ class MemesController @Inject()(
     }
   }
 
+
+  @APIDescription("Search meme with query")
   def search(query: String) = apiAction { implicit request =>
     apiAction.withUser { implicit user =>
       Ok(memesService.search(query).asJson)
     }
   }
 
+  @APIDescription("Get image")
   def image(name: String) = Action { request =>
 
     memesService.image(request.uri).map { data =>
@@ -101,7 +111,7 @@ class MemesController @Inject()(
     }
   }
 
-
+  @APIDescription("delete Meme by id")
   def saveMeme = apiAction { implicit request =>
     import ErrorMessage._
 
@@ -139,14 +149,18 @@ class MemesController @Inject()(
 
   }
 
-  def updateMeme = TODO
 
-
+  @APIDescription("delete Meme by id")
   def deleteMeme(id: Long) = apiAction { implicit request =>
     apiAction.withUser { implicit user =>
       memesService.deleteMeme(id)
       Ok
     }
+  }
+
+  @APIDescription("delete Meme by id")
+  def apiDoc = Action { implicit request =>
+    Ok(routingDocumentation.doc.asJson)
   }
 }
 

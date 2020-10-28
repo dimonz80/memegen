@@ -10,7 +10,6 @@ scalaVersion := "2.13.1"
 
 lazy val anormVersion = "2.6.5"
 
-
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 
@@ -49,25 +48,10 @@ libraryDependencies += "com.dripower" %% "play-circe" % "2812.0"
 //dropbox
 libraryDependencies += "com.dropbox.core" % "dropbox-core-sdk" % "3.1.5"
 
-// Disable genereate doc when dist
-// sources in(Compile, doc) := Seq.empty
-
 publishArtifact in(Compile, packageDoc) := false
 
 //// Конфиг для тестов
 javaOptions in Test += "-Dconfig.file=conf/application.test.conf"
-
-//// Конфиг для разработки
-//javaOptions in Compile += "-Dconfig.file=conf/application.dev.conf"
-
-
-//add files/* to universal/stage
-mappings in Universal ++= {
-  (baseDirectory.value / "files" ** "*").get.map { f =>
-    val path = f.getAbsolutePath.replace(baseDirectory.value.getAbsolutePath, "")
-    f -> path
-  }
-}
 
 
 // All in UTF-8!!!

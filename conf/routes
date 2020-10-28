@@ -6,8 +6,6 @@
 GET          /assets/*file            controllers.Assets.at(path="/public", file)
 
 GET          /                        controllers.MemesController.index(apiKey ?= "")
-GET          /bootstrap               controllers.MemesController.bootrap(apiKey ?= "")
-
 GET          /api/templates           controllers.MemesController.templates
 GET          /api/memes               controllers.MemesController.memes
 GET          /api/meme/:id            controllers.MemesController.meme(id : Long)

@@ -1,0 +1,35 @@
+@(docs : Seq[models.RouterDocItem])(implicit request : Request[AnyContent])
+
+@main("API DOCS") {
+     
+	<div class="container">
+		<div class='row'>
+			<div class='col h-10'></div>
+		</div>
+
+		<div class='row'>
+			<div class='col w-75'>
+
+				<table>
+					<tr>
+						<th class='p-3'>HTTP method</th>
+						<th class='p-3'>URL pattern</th>
+						<th class='p-3'>Description</th>
+						
+					</tr>
+
+					@docs.map { doc =>
+						<tr>
+							<td class='border p-3'>@{doc.method}</td>
+							<td class='border p-3'>@{doc.path}</td>
+							<td class='border p-3'>@{doc.description}</td>
+						</tr> 
+					}	
+					</table>
+			</div>
+		</div>
+
+		
+	</div>		
+	 
+}

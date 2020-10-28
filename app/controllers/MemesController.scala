@@ -35,11 +35,6 @@ class MemesController @Inject()(
 
 
   def index(apiKey: String) = Action { implicit request =>
-    Ok(views.html.apiTestPage(apiKey))
-  }
-
-
-  def bootrap(apiKey: String) = Action { implicit request =>
     Ok(views.html.bootstrap(apiKey))
   }
 
@@ -158,9 +153,9 @@ class MemesController @Inject()(
     }
   }
 
-  @APIDescription("delete Meme by id")
+
   def apiDoc = Action { implicit request =>
-    Ok(routingDocumentation.doc.asJson)
+    Ok(views.html.apiDoc(routingDocumentation.doc))
   }
 }
 

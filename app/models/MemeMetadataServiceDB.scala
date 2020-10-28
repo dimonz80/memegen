@@ -1,6 +1,6 @@
 package models
 
-import java.sql.Connection
+
 
 import javax.inject.{Inject, Singleton}
 import play.api.db.DBApi

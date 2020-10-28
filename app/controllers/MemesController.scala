@@ -162,8 +162,8 @@ class MemesController @Inject()(
 /**
  * Возвращаемое сообщение ошибке
  *
- * @param error
- * @param details
+ * @param error общее описание ошибки
+ * @param details расшифровка конкретных ошибок
  */
 @JsonCodec
 case class ErrorMessage(error: String, details: Map[String, String] = Map())

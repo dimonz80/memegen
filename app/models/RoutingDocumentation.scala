@@ -1,8 +1,5 @@
 package models
 
-import anorm._
-import anorm.SqlParser._
-import java.sql.Connection
 
 import javax.inject._
 import io.circe.generic.JsonCodec

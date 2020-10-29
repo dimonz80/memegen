@@ -21,6 +21,15 @@ case class MemeMetadata(
                        )
 
 /**
+ * Запрос на создание/изменение мема
+ *
+ * @param metadata метаданные картинки
+ * @param base64Image картинка в Base64
+ */
+@JsonCodec
+case class SaveMemeRequest(metadata: MemeMetadata, base64Image: Option[String])
+
+/**
  * Интерфейс для хранения метаданных
  */
 trait MemeMetadataService {
@@ -39,14 +48,14 @@ trait MemeMetadataService {
    * Найти локально сохраненные мемы по условию
    * *
    *
-   * @param filter
+   * @param regExp
    * @return
    */
-  def find(filter: String): Seq[MemeMetadata]
+  def find(regExp: String): Seq[MemeMetadata]
 
 
   /**
-   * Сохранить сетаданные локального мема 
+   * Сохранить метаданные локального мема
    *
    * @param meme
    * @return - ID

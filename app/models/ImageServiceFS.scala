@@ -11,12 +11,9 @@ import play.api.Configuration
 @Singleton
 class ImageServiceFS @Inject()(conf: Configuration) extends ImageService {
 
-
   val filesDir = "./files/"
 
-  val urlPrefix = conf.get[String]("image.urlPrefix")
-
-
+  val urlPrefix: String = conf.get[String]("image.urlPrefix")
 
   override def get(name: String): Option[Array[Byte]] = {
     val f = new File(filesDir + name.replace(urlPrefix,""))

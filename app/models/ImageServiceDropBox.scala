@@ -13,19 +13,17 @@ import play.api.Configuration
 @Singleton
 class ImageServiceDropBox @Inject()(conf : Configuration) extends ImageService {
 
-  val app_key = "1zjkda0bzj3vdsk"
-  val app_secret = "heogqoulh5j2c2k"
-  val token = "PrcBN89UVckAAAAAAAAAAepI9RR25NahNgXxDYfQytViJBRcJBIH8lLStgsSDaY6"
+  val apiKey: String = conf.get[String]("dropbox.apiKey")
+  val appSecrete: String = conf.get[String]("dropbox.appSecrete")
+  val token: String = conf.get[String]("dropbox.token")
 
-  val urlPrefix = conf.get[String]("image.urlPrefix")
+  val urlPrefix: String = conf.get[String]("image.urlPrefix")
 
+  lazy val appInfo: DbxAppInfo = new DbxAppInfo(apiKey, appSecrete)
+  lazy val config: DbxRequestConfig = new DbxRequestConfig("azavea/rf-dropbox-test")
 
-
-  lazy val appInfo = new DbxAppInfo(app_key, app_secret)
-  lazy val config = new DbxRequestConfig("azavea/rf-dropbox-test")
-
-  lazy val webAuth = new DbxWebAuth(config, appInfo)
-  lazy val authRequest = DbxWebAuth.newRequestBuilder().withNoRedirect().build()
+  lazy val webAuth: DbxWebAuth = new DbxWebAuth(config, appInfo)
+  lazy val authRequest: DbxWebAuth.Request = DbxWebAuth.newRequestBuilder().withNoRedirect().build()
 
   lazy val client = new DbxClientV2(config, token)
 

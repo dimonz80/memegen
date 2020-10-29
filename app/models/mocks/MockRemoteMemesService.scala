@@ -5,7 +5,7 @@ import java.io.{File, FileInputStream}
 import javax.inject.Singleton
 import models.{ApplicationException, ErrorResponse, MemeRequest, MemeRequestData, MemeTemplate, MemesSequenceData, RemoteMemesService, RemoteResponse, SuccessResponse}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContextExecutor, Future}
 
 
 /**
@@ -13,7 +13,7 @@ import scala.concurrent.Future
  */
 @Singleton
 class MockRemoteMemesService extends RemoteMemesService {
-  implicit val ex = scala.concurrent.ExecutionContext.global
+  implicit val ex: ExecutionContextExecutor = scala.concurrent.ExecutionContext.global
 
 
   def responseFromFile(fileName: String): RemoteResponse = {
@@ -38,7 +38,7 @@ class MockRemoteMemesService extends RemoteMemesService {
 
 
   override def templates: Future[Seq[MemeTemplate]] = Future {
-    (responseFromFile("./memes.json")) match {
+    responseFromFile("./memes.json") match {
       case SuccessResponse(MemesSequenceData(templates), _) => templates
       case ErrorResponse(error_message, _) => throw new ApplicationException(error_message)
       case _ => throw new ApplicationException("strange data received")
@@ -46,7 +46,7 @@ class MockRemoteMemesService extends RemoteMemesService {
   }
 
   override def generateMeme(captionImage: MemeRequest): Future[MemeRequestData] = Future {
-    (responseFromFile("./response.json")) match {
+    responseFromFile("./response.json") match {
       case SuccessResponse(data@MemeRequestData(_, _), _) => data
       case ErrorResponse(error_message, _) => throw new ApplicationException(error_message)
       case _ => throw new ApplicationException("strange data received")
@@ -55,6 +55,6 @@ class MockRemoteMemesService extends RemoteMemesService {
 
 
   override def image(url: String): Future[Array[Byte]] = Future {
-    (imageFromFile("./image.jpg"))
+    imageFromFile("./image.jpg")
   }
 }

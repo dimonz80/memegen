@@ -14,7 +14,7 @@ case class User(name: String, apiKey: String)
 trait UserService {
 
   /**
-   * Получиль пользователя по имени
+   * Получить пользователя по имени
    *
    * @param userName
    * @return
@@ -22,6 +22,12 @@ trait UserService {
 
   def find(userName: String): Option[User]
 
+  /**
+   * Найти пользователя по ключу API
+   *
+   * @param key
+   * @return
+   */
   def findByKey(key: String): Option[User]
 
 

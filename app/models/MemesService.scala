@@ -23,21 +23,50 @@ class MemesService @Inject()(
                             )(implicit ex: ExecutionContext) {
 
 
+  /**
+   * Список мемов пользователя
+   *
+   * @param user
+   * @return
+   */
   def memes(implicit user: User): Seq[MemeMetadata] =
     metadataService.userMemes(user)
 
-
+  /**
+   * Нафти мем по ID для пользователя
+   *
+   * @param id
+   * @param user
+   * @return
+   */
   def meme(id: Long)(implicit user: User): Option[MemeMetadata] =
     metadataService.find(id).filter(_.user == Option(user.name))
 
+  /**
+   * Поиск мемов по регулярному выражению для пользователя
+   *
+   * @param regExp
+   * @param user
+   * @return
+   */
+  def search(regExp: String)(implicit user: User): Seq[MemeMetadata] =
+    metadataService.find(regExp)
 
-  def search(query: String)(implicit user: User): Seq[MemeMetadata] =
-    metadataService.find(query)
-
-
+  /**
+   * Получить локально сохраненную картинку мема
+   *
+   * @param name
+   * @return
+   */
   def image(name: String): Option[Array[Byte]] = imageService.get(name)
 
 
+  /**
+   * Запросить удаленный сервис создать мем
+   *
+   * @param request
+   * @return
+   */
   def generateMeme(request: MemeRequest): Array[Byte] = {
     Await.result(
       remoteMemesService.generateMeme(request).map {
@@ -49,7 +78,14 @@ class MemesService @Inject()(
 
   }
 
-
+  /**
+   * Сохранить метаданные и картинку  с указанием авторства
+   *
+   * @param localMeme
+   * @param imageData
+   * @param user
+   * @return
+   */
   def createMeme(localMeme: MemeMetadata,
                  imageData: Array[Byte])
                 (implicit user: User): Long = {
@@ -58,6 +94,14 @@ class MemesService @Inject()(
 
   }
 
+  /**
+   * Сохранить метаданные и картинку  с указанием авторства
+   *
+   * @param localMeme
+   * @param imageData
+   * @param user
+   * @return
+   */
   def createMeme(localMeme: MemeMetadata,
                  imageData: File)
                 (implicit user: User): Long = {
@@ -67,6 +111,14 @@ class MemesService @Inject()(
   }
 
 
+  /**
+   * Обглвить метаданные и опционально картинку
+   *
+   * @param id
+   * @param localMeme
+   * @param imageData
+   * @param user
+   */
   def updateMeme(id: Long,
                  localMeme: MemeMetadata,
                  imageData: Option[Array[Byte]] = None)
@@ -90,6 +142,12 @@ class MemesService @Inject()(
     }
   }
 
+  /**
+   * Удалить мем по ID для пользователя
+   *
+   * @param id
+   * @param user
+   */
   def deleteMeme(id: Long)(implicit user: User): Unit = {
     metadataService.find(id).foreach { metaData =>
       metaData.url.foreach { url =>
@@ -99,7 +157,11 @@ class MemesService @Inject()(
     }
   }
 
-
+  /**
+   * Получить список шаблонов
+   *
+   * @return
+   */
   def templates: Seq[MemeTemplate] = metadataService.templates
 
 

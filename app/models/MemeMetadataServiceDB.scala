@@ -3,7 +3,7 @@ package models
 
 
 import javax.inject.{Inject, Singleton}
-import play.api.db.DBApi
+import play.api.db.{DBApi, Database}
 import anorm._
 import anorm.SqlParser._
 
@@ -17,9 +17,9 @@ class MemeMetadataServiceDB @Inject()(dbApi: DBApi,
                                       implicit val ex: ExecutionContext
                                      ) extends MemeMetadataService {
 
-  lazy val db = dbApi.database("default")
+  lazy val db: Database = dbApi.database("default")
 
-  val parser = Macro.namedParser[MemeMetadata]
+  val parser: RowParser[MemeMetadata] = Macro.namedParser[MemeMetadata]
 
   /**
    * Найти локально сохраненный мем по ID
@@ -35,11 +35,11 @@ class MemeMetadataServiceDB @Inject()(dbApi: DBApi,
    * Найти локально сохраненные мемы по условию
    * *
    *
-   * @param filter
+   * @param regExp
    * @return
    */
-  override def find(filter: String): Seq[MemeMetadata] = db.withConnection { implicit conn =>
-    SQL"select * from MemeMetadata where name ~= $filter or comment ~= filter".as(parser.*)
+  override def find(regExp: String): Seq[MemeMetadata] = db.withConnection { implicit conn =>
+    SQL"select * from MemeMetadata where name ~= $regExp or comment ~= filter".as(parser.*)
   }
 
   /**
@@ -87,7 +87,7 @@ class MemeMetadataServiceDB @Inject()(dbApi: DBApi,
   }
 
 
-  val templateParser = Macro.namedParser[MemeTemplate]
+  val templateParser: RowParser[MemeTemplate] = Macro.namedParser[MemeTemplate]
 
   /**
    * Получть шаблоны для мемов
@@ -108,7 +108,7 @@ class MemeMetadataServiceDB @Inject()(dbApi: DBApi,
     SQL"select * from MemeTemplate where id = $id".as(templateParser.singleOpt)
   }
 
-  def deleteTemplate(id: String) = db.withConnection { implicit conn =>
+  def deleteTemplate(id: String): Int = db.withConnection { implicit conn =>
     SQL"delete from MemeTemplate where id = $id".executeUpdate()
   }
 
@@ -141,8 +141,7 @@ class MemeMetadataServiceDB @Inject()(dbApi: DBApi,
       }
     }).onComplete {
       case Success(newTemplates) =>
-
-
+      // TODO log success
       case Failure(exception) =>
       // TODO log errors
     }

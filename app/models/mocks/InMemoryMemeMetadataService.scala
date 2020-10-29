@@ -21,18 +21,18 @@ class InMemoryMemeMetadataService @Inject()(imageService: ImageService,
 
   private val templatesRepository = scala.collection.mutable.Map[String, MemeTemplate]()
 
-  override def find(id: Long) = repository.get(id)
+  override def find(id: Long): Option[MemeMetadata] = repository.get(id)
 
-  override def find(filter: String) = repository.filter { case (_, meme) =>
+  override def find(regExp: String): Seq[MemeMetadata] = repository.filter { case (_, meme) =>
     try {
-      meme.name.toUpperCase.matches(filter.toUpperCase()) ||
-        meme.comment.getOrElse("").toUpperCase().matches(filter.toUpperCase())
+      meme.name.toUpperCase.matches(regExp.toUpperCase()) ||
+        meme.comment.getOrElse("").toUpperCase().matches(regExp.toUpperCase())
     } catch {
       case e: PatternSyntaxException => throw new ApplicationException(e.getMessage)
     }
   }.values.toSeq
 
-  override def save(meme: MemeMetadata) = {
+  override def save(meme: MemeMetadata): Long = {
     synchronized {
       val nextKey = {
         if (repository.isEmpty) {

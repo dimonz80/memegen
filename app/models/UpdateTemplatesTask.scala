@@ -10,6 +10,7 @@ import scala.util.{Failure, Success}
 
 /**
  * Просто запускатель обновлений шаблонов каждые 24 часа
+ * TODO - переделать на чем-нибудь cron-подобном
  *
  * @param app
  * @param remoteMemesService
@@ -23,7 +24,7 @@ class UpdateTemplatesTask @Inject()(app: Application,
                                     metadataService: MemeMetadataService,
                                     implicit val ex: ExecutionContext) {
 
-  val logger = Logger("application")
+  val logger: Logger = Logger("application")
 
   def start(): Cancellable = {
     app.actorSystem.scheduler.scheduleWithFixedDelay(1 seconds, 24 hours)(new Runnable {
@@ -39,6 +40,6 @@ class UpdateTemplatesTask @Inject()(app: Application,
     })
   }
 
-   start()
+  start()
 
 }

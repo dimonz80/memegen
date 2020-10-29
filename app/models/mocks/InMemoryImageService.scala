@@ -6,6 +6,8 @@ import javax.inject.{Inject, Singleton}
 import models.ImageService
 import play.api.Configuration
 
+import scala.collection.mutable
+
 /**
  * Заглушка для хранения картинок в ОЗУ
  *
@@ -14,23 +16,45 @@ import play.api.Configuration
 @Singleton
 class InMemoryImageService @Inject()(conf: Configuration) extends ImageService {
 
-  val storage = scala.collection.mutable.Map[String, Array[Byte]]()
+  val storage: mutable.Map[String, Array[Byte]] = scala.collection.mutable.Map[String, Array[Byte]]()
 
-  def urlPrefix = conf.get[String]("image.urlPrefix")
+  def urlPrefix: String = conf.get[String]("image.urlPrefix")
 
-  override def get(name: String) = {
-    storage.get(name)
-  }
+  /**
+   * Получить картинку по имени
+   *
+   * @param name
+   * @return
+   */
+  override def get(name: String): Option[Array[Byte]] = storage.get(name)
 
-  override def put(data: Array[Byte]) = synchronized {
+  /**
+   * Сохранить картинку и получить имя
+   *
+   * @param data бинарное представлени картинки
+   * @return имя катинки
+   */
+  override def put(data: Array[Byte]): String = synchronized {
     val newName = urlPrefix + "/" + java.util.UUID.randomUUID().toString
     storage.put(newName, data)
     newName
   }
 
 
+  /**
+   * Удалить картинку по имени
+   *
+   * @param name имя картинки
+   */
   override def delete(name: String): Unit = synchronized(storage.remove(name))
 
+
+  /**
+   * Cохранить картинку и получить имя
+   *
+   * @param in поток с данными картинки
+   * @return имя картинки
+   */
   override def put(in: InputStream): String = {
     val buf = new Array[Byte](1024)
     val resultBuf = new ByteArrayOutputStream()
@@ -41,4 +65,3 @@ class InMemoryImageService @Inject()(conf: Configuration) extends ImageService {
 
   }
 }
-

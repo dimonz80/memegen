@@ -7,13 +7,25 @@ import play.api.routing.Router
 
 import scala.util.Try
 
+/**
+ * Представление роута для документирования
+ *
+ * @param method
+ * @param path
+ * @param controllerMethod
+ * @param description
+ */
 @JsonCodec
 case class RouterDocItem(method: String, path: String, controllerMethod: String, description: String = "")
 
-
+/**
+ * Класс для формирования документаии по роутингу
+ *
+ * @param routerProv
+ */
 class RoutingDocumentation @Inject()(routerProv: Provider[Router]) {
 
-  lazy val doc = routerProv.get.documentation.flatMap {
+  lazy val doc: Seq[RouterDocItem] = routerProv.get.documentation.flatMap {
     case (method, path, controllerMethod) =>
       val methodName = controllerMethod.split("\\(").apply(0)
       val actionName = methodName.split("\\.").last

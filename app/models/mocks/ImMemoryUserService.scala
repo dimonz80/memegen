@@ -16,9 +16,22 @@ class ImMemoryUserService extends UserService {
     "User3" -> User("User3", "333"),
   )
 
+  /**
+   * Получиль пользователя по имени
+   *
+   * @param userName
+   * @return
+   */
   override def find(userName: String): Option[User] = store.get(userName)
 
+  /**
+   * Найти пользователя по ключу API
+   *
+   * @param key
+   * @return
+   */
   override def findByKey(key: String): Option[User] = store.find { case (_, user) =>
     user.apiKey == key
   }.map(_._2)
 }
+

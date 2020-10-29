@@ -4,14 +4,14 @@ import java.io.{ByteArrayInputStream, FileInputStream}
 import java.util.Base64
 
 import akka.util.ByteString
-import io.circe.{CursorOp, Decoder, DecodingFailure, HCursor, JsonObject}
+import io.circe.{CursorOp, Decoder, DecodingFailure, HCursor, Json, JsonObject}
 import io.circe.generic.JsonCodec
 import javax.inject._
 import play.api.mvc._
 import play.api.libs.circe.Circe
 import io.circe.syntax._
 import io.circe.parser.decode
-import models.{APIDescription, ApplicationException, ImageService, MemeBox, MemeMetadata, MemeRequest, MemeTemplate, MemesService, RoutingDocumentation}
+import models.{APIDescription, ApplicationException, ImageService, MemeBox, MemeMetadata, MemeRequest, MemeTemplate, MemesService, RoutingDocumentation, SaveMemeRequest}
 import play.api.http.{ContentTypes, HttpEntity}
 
 import scala.concurrent.ExecutionContext
@@ -34,20 +34,20 @@ class MemesController @Inject()(
                                ) extends BaseController with Circe {
 
 
-  def index(apiKey: String) = Action { implicit request =>
+  def index(apiKey: String): Action[AnyContent] = Action { implicit request =>
     Ok(views.html.bootstrap(apiKey))
   }
 
   @APIDescription("Get memes templates")
-  def templates = apiAction { implicit request =>
+  def templates: Action[AnyContent] = apiAction { implicit request =>
     apiAction.withUser { implicit user =>
       Ok(memesService.templates.asJson).as(ContentTypes.JSON)
     }
   }
 
 
-  @APIDescription("Generate new meme ")
-  def generateMeme = apiAction { request =>
+  @APIDescription("Generate new meme")
+  def generateMeme: Action[AnyContent] = apiAction { request =>
     import ErrorMessage._
 
     request.body.asJson.map { data =>
@@ -67,8 +67,8 @@ class MemesController @Inject()(
   }
 
 
-  @APIDescription("Get all user's meme")
-  def memes = apiAction { implicit request =>
+  @APIDescription("Get all user's memes")
+  def memes: Action[AnyContent] = apiAction { implicit request =>
     apiAction.withUser { implicit user =>
       Ok(memesService.memes.asJson).as(ContentTypes.JSON)
     }
@@ -76,7 +76,7 @@ class MemesController @Inject()(
 
 
   @APIDescription("Get meme by id")
-  def meme(id: Long) = apiAction { implicit request =>
+  def meme(id: Long): Action[AnyContent] = apiAction { implicit request =>
     apiAction.withUser { implicit user =>
       memesService.meme(id).map { meme =>
         Ok(meme.asJson)
@@ -87,15 +87,15 @@ class MemesController @Inject()(
   }
 
 
-  @APIDescription("Search meme with query")
-  def search(query: String) = apiAction { implicit request =>
+  @APIDescription("Search meme with regexp")
+  def search(query: String): Action[AnyContent] = apiAction { implicit request =>
     apiAction.withUser { implicit user =>
       Ok(memesService.search(query).asJson)
     }
   }
 
   @APIDescription("Get image")
-  def image(name: String) = Action { request =>
+  def image(name: String): Action[AnyContent] = Action { request =>
 
     memesService.image(request.uri).map { data =>
       Result(
@@ -106,8 +106,8 @@ class MemesController @Inject()(
     }
   }
 
-  @APIDescription("delete Meme by id")
-  def saveMeme = apiAction { implicit request =>
+  @APIDescription("Delete meme by id")
+  def saveMeme: Action[AnyContent] = apiAction { implicit request =>
     import ErrorMessage._
 
     apiAction.withUser { implicit user =>
@@ -145,8 +145,8 @@ class MemesController @Inject()(
   }
 
 
-  @APIDescription("delete Meme by id")
-  def deleteMeme(id: Long) = apiAction { implicit request =>
+  @APIDescription("Delete meme by id")
+  def deleteMeme(id: Long): Action[AnyContent] = apiAction { implicit request =>
     apiAction.withUser { implicit user =>
       memesService.deleteMeme(id)
       Ok
@@ -154,7 +154,7 @@ class MemesController @Inject()(
   }
 
 
-  def apiDoc = Action { implicit request =>
+  def apiDoc: Action[AnyContent] = Action { implicit request =>
     Ok(views.html.apiDoc(routingDocumentation.doc))
   }
 }
@@ -162,7 +162,7 @@ class MemesController @Inject()(
 /**
  * Возвращаемое сообщение ошибке
  *
- * @param error общее описание ошибки
+ * @param error   общее описание ошибки
  * @param details расшифровка конкретных ошибок
  */
 @JsonCodec
@@ -171,20 +171,12 @@ case class ErrorMessage(error: String, details: Map[String, String] = Map())
 object ErrorMessage {
 
   implicit class DecodingFailureWrapper(df: DecodingFailure) {
-    def asErrorMessage = ErrorMessage("Validation error", Map(CursorOp.opsToPath(df.history) -> df.message)).asJson
+    def asErrorMessage: Json = ErrorMessage("Validation error", Map(CursorOp.opsToPath(df.history) -> df.message)).asJson
   }
 
   implicit class ErrorWrapper(e: io.circe.Error) {
-    def asErrorMessage = ErrorMessage(e.getMessage).asJson
+    def asErrorMessage: Json = ErrorMessage(e.getMessage).asJson
   }
 
 }
 
-/**
- * Запрос на создание/изменение мема
- *
- * @param metadata
- * @param base64Image
- */
-@JsonCodec
-case class SaveMemeRequest(metadata: MemeMetadata, base64Image: Option[String])

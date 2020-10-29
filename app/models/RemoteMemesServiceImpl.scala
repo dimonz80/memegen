@@ -1,11 +1,12 @@
 package models
 
-import java.net.{URLEncoder}
+import java.net.URLEncoder
 
 import javax.inject.Inject
 import play.api.http.ContentTypes
 import play.api.libs.ws.WSClient
 import io.circe.parser.decode
+import play.api.Configuration
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -16,14 +17,22 @@ import scala.concurrent.{ExecutionContext, Future}
  * @param ws служба для HTTP запросов
  * @param ex ExecutionContext нужен для WSClient
  */
-class RemoteMemesServiceImpl @Inject()(ws: WSClient)(implicit ex: ExecutionContext) extends RemoteMemesService {
+class RemoteMemesServiceImpl @Inject()(ws: WSClient, conf: Configuration)(implicit ex: ExecutionContext) extends RemoteMemesService {
 
-  val templatesUrl = "https://api.imgflip.com/get_memes"
-  val captionUrl = "https://api.imgflip.com/caption_image"
-  val userName = "memgentest"
-  val password = "Q1w2e3r4"
+  val templatesUrl: String = conf.get[String]("remoteMemesService.templatesUrl")
+  val captionUrl: String = conf.get[String]("remoteMemesService.captionUrl")
+  val userName: String = conf.get[String]("remoteMemesService.userName")
+  val password: String = conf.get[String]("remoteMemesService.password")
 
 
+  /**
+   * Формирование формы для запроса удаленного сервиса
+   *
+   * @param request
+   * @param user
+   * @param password
+   * @return
+   */
   def fillForm(request: MemeRequest, user: String, password: String): String = {
 
     //Хэлпер для формирования полей формы
@@ -56,6 +65,12 @@ class RemoteMemesServiceImpl @Inject()(ws: WSClient)(implicit ex: ExecutionConte
   }
 
 
+  /**
+   * Запросить генерацию в соотвествии с запросом
+   *
+   * @param request
+   * @return
+   */
   override def generateMeme(request: MemeRequest): Future[MemeRequestData] = {
     ws.url(captionUrl)
       .withHttpHeaders("Content-Type" -> s"${ContentTypes.FORM};charset=utf-8")
@@ -70,6 +85,11 @@ class RemoteMemesServiceImpl @Inject()(ws: WSClient)(implicit ex: ExecutionConte
       }
   }
 
+  /**
+   * Запросить список шаблонов
+   *
+   * @return
+   */
   override def templates: Future[Seq[MemeTemplate]] = {
     ws.url(templatesUrl).get.map { response =>
       decode[RemoteResponse](response.body) match {
@@ -80,6 +100,12 @@ class RemoteMemesServiceImpl @Inject()(ws: WSClient)(implicit ex: ExecutionConte
     }
   }
 
+  /**
+   * Запросить картинку сгенерированного мема
+   *
+   * @param url
+   * @return
+   */
   override def image(url: String): Future[Array[Byte]] = {
     ws.url(url).get.map(response => response.bodyAsBytes.toArray)
   }

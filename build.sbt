@@ -1,5 +1,3 @@
-
-
 name := """Memegen"""
 
 organization := "ru.dimonz80"
@@ -50,11 +48,10 @@ libraryDependencies += "com.dropbox.core" % "dropbox-core-sdk" % "3.1.5"
 
 publishArtifact in(Compile, packageDoc) := false
 
-//// Конфиг для тестов
+// Конфиг для тестов
 javaOptions in Test += "-Dconfig.file=conf/application.test.conf"
 
-
-// All in UTF-8!!!
+// All in UTF-8
 javacOptions ++= Seq("-encoding", "UTF-8")
 
 // scalac options

@@ -17,22 +17,26 @@ import play.api.http.{ContentTypes, HttpEntity}
 import scala.concurrent.ExecutionContext
 import scala.util.Try
 
+import ErrorMessage._
+
 /**
  * Котроллер для API
  *
  * @param controllerComponents
  * @param memesService
- * @param apiAction
  * @param ec
  */
 @Singleton
 class MemesController @Inject()(
                                  val controllerComponents: ControllerComponents,
                                  memesService: MemesService,
-                                 apiAction: APIAction,
+                                 userAction: WithUserAction,
                                  routingDocumentation: RoutingDocumentation,
                                  implicit val ec: ExecutionContext
                                ) extends BaseController with Circe {
+
+
+  val apiAction: ActionBuilder[UserRequest, AnyContent] = Action.andThen(userAction)
 
 
   def index(apiKey: String): Action[AnyContent] = Action { implicit request =>
@@ -41,16 +45,11 @@ class MemesController @Inject()(
 
   @APIDescription("Get memes templates")
   def templates: Action[AnyContent] = apiAction { implicit request =>
-    apiAction.withUser { implicit user =>
-      Ok(memesService.templates.asJson).as(ContentTypes.JSON)
-    }
+    Ok(memesService.templates.asJson).as(ContentTypes.JSON)
   }
-
 
   @APIDescription("Generate new meme")
   def generateMeme: Action[AnyContent] = apiAction { request =>
-    import ErrorMessage._
-
     request.body.asJson.map { data =>
       decode[MemeRequest](data.toString) match {
         case Right(memeRequest) =>
@@ -70,34 +69,30 @@ class MemesController @Inject()(
 
   @APIDescription("Get all user's memes")
   def memes: Action[AnyContent] = apiAction { implicit request =>
-    apiAction.withUser { implicit user =>
-      Ok(memesService.memes.asJson).as(ContentTypes.JSON)
-    }
+    Ok(memesService.memes(request.user).asJson).as(ContentTypes.JSON)
   }
 
 
   @APIDescription("Get meme by id")
   def meme(id: Long): Action[AnyContent] = apiAction { implicit request =>
-    apiAction.withUser { implicit user =>
-      memesService.meme(id).map { meme =>
-        Ok(meme.asJson)
-      }.getOrElse {
-        NotFound(ErrorMessage("Meme not found").asJson)
-      }.as(ContentTypes.JSON)
-    }
+    memesService.meme(id)(request.user).map { meme =>
+      Ok(meme.asJson)
+    }.getOrElse {
+      NotFound(ErrorMessage("Meme not found").asJson)
+    }.as(ContentTypes.JSON)
+
   }
 
 
   @APIDescription("Search meme with regexp")
   def search(query: String): Action[AnyContent] = apiAction { implicit request =>
-    apiAction.withUser { implicit user =>
+    request.withUser { implicit user =>
       Ok(memesService.search(query).asJson)
     }
   }
 
-  @APIDescription("Get image")
+  @APIDescription("Get image by name")
   def image(name: String): Action[AnyContent] = Action { request =>
-
     memesService.image(request.uri).map { data =>
       Result(
         header = ResponseHeader(200, Map.empty),
@@ -111,7 +106,7 @@ class MemesController @Inject()(
   def saveMeme: Action[AnyContent] = apiAction { implicit request =>
     import ErrorMessage._
 
-    apiAction.withUser { implicit user =>
+    request.withUser { implicit user =>
       request.body.asJson.map { json =>
         decode[SaveMemeRequest](json.toString) match {
           case Right(SaveMemeRequest(metadata, imageData)) =>
@@ -140,7 +135,7 @@ class MemesController @Inject()(
 
   @APIDescription("Delete meme by id")
   def deleteMeme(id: Long): Action[AnyContent] = apiAction { implicit request =>
-    apiAction.withUser { implicit user =>
+    request.withUser { implicit user =>
       memesService.deleteMeme(id)
       Ok
     }
@@ -152,24 +147,4 @@ class MemesController @Inject()(
   }
 }
 
-/**
- * Возвращаемое сообщение ошибке
- *
- * @param error   общее описание ошибки
- * @param details расшифровка конкретных ошибок
- */
-@JsonCodec
-case class ErrorMessage(error: String, details: Map[String, String] = Map())
-
-object ErrorMessage {
-
-  implicit class DecodingFailureWrapper(df: DecodingFailure) {
-    def asErrorMessage: Json = ErrorMessage("Validation error", Map(CursorOp.opsToPath(df.history) -> df.message)).asJson
-  }
-
-  implicit class ErrorWrapper(e: io.circe.Error) {
-    def asErrorMessage: Json = ErrorMessage(e.getMessage).asJson
-  }
-
-}
 

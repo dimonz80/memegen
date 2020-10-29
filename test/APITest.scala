@@ -4,7 +4,7 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatestplus.play.PlaySpec
 import io.circe.parser._
 import io.circe.syntax._
-import models.{ImageService, MemeBox, MemeMetadata, MemeMetadataService, MemeRequest, MemeTemplate, MemesService, RemoteMemesService, UserService}
+import models.{ImageService, MemeBox, MemeMetadata, MemeMetadataService, MemeRequest, MemeTemplate, MemesService, RemoteMemesService, SaveMemeRequest, UserService}
 import models.mocks.{ImMemoryUserService, InMemoryImageService, InMemoryMemeMetadataService, MockRemoteMemesService}
 import play.api.http.ContentTypes
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -13,11 +13,6 @@ import play.api.test._
 import play.api.inject.bind
 import java.io.File
 import java.util.Base64
-
-import controllers.SaveMemeRequest
-
-
-
 
 
 /**
@@ -269,8 +264,9 @@ class APITestSuite extends PlaySpec with BeforeAndAfterAll {
 
   // TODO
   "API security" should {
-    "TODO" in {
-      succeed
+    "GET /api/templates  - response UNAUTHORIZED without header with API key" in {
+      val Some(result) = route(app, FakeRequest(GET, "/api/templates")) //.withHeaders(userApiKeyHeader))
+      status(result) mustEqual UNAUTHORIZED
     }
   }
 

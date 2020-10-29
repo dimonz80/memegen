@@ -4,7 +4,7 @@ import java.io.{File, FileInputStream, InputStream}
 
 
 /**
- * Интерфес для сревиса хранения картинок
+ * Интерфейс для сревиса хранения картинок
  */
 trait ImageService {
   /**

@@ -3,10 +3,9 @@ package models.mocks
 import java.util.regex.PatternSyntaxException
 
 import javax.inject.{Inject, Singleton}
-import models.{ApplicationException, ImageService, MemeMetadata, MemeMetadataService, MemeTemplate, RemoteMemesService, User}
-
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
+import models._
 
 /**
  * Заглушка для хранения метаданных в ОЗУ

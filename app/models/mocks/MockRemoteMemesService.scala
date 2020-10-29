@@ -1,12 +1,9 @@
 package models.mocks
 
 import java.io.{File, FileInputStream}
-
 import javax.inject.Singleton
-import models.{ApplicationException, ErrorResponse, MemeRequest, MemeRequestData, MemeTemplate, MemesSequenceData, RemoteMemesService, RemoteResponse, SuccessResponse}
-
 import scala.concurrent.{ExecutionContextExecutor, Future}
-
+import models._
 
 /**
  * Заглушка для симуляции удаленного сервиса

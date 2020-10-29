@@ -1,17 +1,14 @@
 package controllers
 
-import java.io.{ByteArrayInputStream, FileInputStream}
 import java.util.Base64
-
 import akka.util.ByteString
-import io.circe.{CursorOp, Decoder, DecodingFailure, HCursor, Json, JsonObject}
-import io.circe.generic.JsonCodec
+import io.circe.DecodingFailure
 import javax.inject._
 import play.api.mvc._
 import play.api.libs.circe.Circe
 import io.circe.syntax._
 import io.circe.parser.decode
-import models.{APIDescription, ApplicationException, ImageService, MemeBox, MemeMetadata, MemeRequest, MemeTemplate, MemesService, RoutingDocumentation, SaveMemeRequest}
+import models.{APIDescription, MemeRequest, MemesService, RoutingDocumentation, SaveMemeRequest}
 import play.api.http.{ContentTypes, HttpEntity}
 
 import scala.concurrent.ExecutionContext
@@ -102,7 +99,7 @@ class MemesController @Inject()(
     }
   }
 
-  @APIDescription("Delete meme by id")
+  @APIDescription("Save meme")
   def saveMeme: Action[AnyContent] = apiAction { implicit request =>
     import ErrorMessage._
 

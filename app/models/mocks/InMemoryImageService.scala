@@ -1,6 +1,6 @@
 package models.mocks
 
-import java.io.{ByteArrayOutputStream, File, InputStream}
+import java.io.{ByteArrayOutputStream, InputStream}
 
 import javax.inject.{Inject, Singleton}
 import models.ImageService

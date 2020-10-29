@@ -1,7 +1,6 @@
 package models
 
 import java.io.{File, FileInputStream, FileOutputStream, InputStream}
-
 import javax.inject.{Inject, Singleton}
 import play.api.Configuration
 

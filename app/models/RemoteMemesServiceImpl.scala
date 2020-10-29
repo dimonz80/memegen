@@ -1,13 +1,11 @@
 package models
 
 import java.net.URLEncoder
-
 import javax.inject.Inject
 import play.api.http.ContentTypes
 import play.api.libs.ws.WSClient
 import io.circe.parser.decode
 import play.api.Configuration
-
 import scala.concurrent.{ExecutionContext, Future}
 
 

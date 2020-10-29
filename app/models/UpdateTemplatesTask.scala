@@ -1,6 +1,6 @@
 package models
 
-import akka.actor.{Actor, Cancellable, Props}
+import akka.actor.Cancellable
 import javax.inject.{Inject, Singleton}
 import play.api.{Application, Logger}
 

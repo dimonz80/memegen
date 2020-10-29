@@ -1,9 +1,7 @@
 package models
 
 import java.io.File
-
 import javax.inject.{Inject, Singleton}
-
 import scala.concurrent.{Await, ExecutionContext}
 import scala.concurrent.duration.DurationInt
 

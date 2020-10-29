@@ -10,7 +10,7 @@
 * /app/views - html-шаблоны
 * /conf/evolution/default/\*.sql - скрипты миргации БД
 * /conf/application.conf - конфигурационный файл
-* /conf/routes - привязка методов контроллеров в URL
+* /conf/routes - привязка методов контроллеров к URL
  
 
 ## Реализованное API 
@@ -18,13 +18,13 @@
   HTTP method   |   URL pattern             | Description
 ----------------|---------------------------|-----------------------------
 GET             | /api/templates            | Get memes templates
-GET             | /api/memes                | Get all user's meme
+GET             | /api/memes                | Get all user's memes
 GET             | /api/meme/$id<[^/]+>      | Get meme by id
-POST            | /api/meme                 | delete Meme by id
+POST            | /api/meme                 | Save meme 
 POST            | /api/generate             | Generate new meme
-GET             | /api/search               | Search meme with query
-DELETE          | /api/delete/$id<[^/]+>    | Delete Meme by id
-GET             | /api/image/$name<[^/]+>   | Get image
+GET             | /api/search               | Search meme with regexp
+DELETE          | /api/delete/$id<[^/]+>    | Delete meme by idЫ
+GET             | /api/image/$name<[^/]+>   | Get image by name
 
 
 
@@ -45,7 +45,7 @@ GET             | /api/image/$name<[^/]+>   | Get image
   }
 }
 ```
-Подобный ответ будет так-же при друших видах ошибок, например, при ошбке валидации JSON:
+Подобный ответ будет также при других видах ошибок, например, при ошбке валидации JSON:
 
 ```json
 {
@@ -77,17 +77,17 @@ case class ErrorMessage(error: String, details: Map[String, String] = Map())
 * ```trait MemeMetadataService``` - для работы с метаданными сохраненных мемов
 * ```trait RemoteMemeService``` - для работы с API удаленного сервиса
 
-Для этих интерфесов сделано несколько реализаций. 
+Для этих интерфейсов сделано несколько реализаций. 
 
 * ```class ImageServiceDropBox extends ImageService``` - реализация хранения фалов в DropBox через DropBox API
-* ```class ImageServiceFS extends ImageService``` - реализация хранения фалов в локальной файловой системе
+* ```class ImageServiceFS extends ImageService``` - реализация хранения файлов в локальной файловой системе
 * ```class MemeMetadataServiceDB extends MemeMetadataService``` - реализация хранения метаданных в БД
 * ```class RemoteMemesServiceImpl extends RemoteMemeService``` - реализация реальной работы с удаленным API генерации мемов
 * ```class UserServiceDB extends UserService``` - реализация хранения пользователей в БД
 
-В пакете ```models.mocks``` - реализации этих интефейсов для тестов.
+В пакете ```models.mocks``` - реализации этих интерфейсов для тестов.
 
-Конкретные реализации указываются в классе ```StartupModule``` при поможи DI контейнета (используется Google Guice).
+Конкретные реализации указываются в классе ```StartupModule``` при помощи DI контейнера (используется Google Guice).
 
 Например
 ```scala
@@ -100,8 +100,8 @@ binder().bind(classOf[ImageService]).to(classOf[ImageServiceDropBox])
 
 Для реализации пункта задания "В качестве дополнительного
 задания: написать тесты так, чтобы они использовались для генерации
-документации по методам" тесты сдаланы в виде списка объектов с
-опиcанием HTTP метода, URL, описанием и методом, который вызваестя при прогоне теста
+документации по методам" тесты сделаны в виде списка объектов с описанием 
+HTTP метода, URL, описанием и методом, который вызывается при прогоне теста
 
 ```scala
 /**
@@ -116,7 +116,9 @@ case class APITest(method: String, path: String, description: String, body: APIT
   def toDoc: String = s"$method $path - $description"
 }
 ```
+
 Прогон тестов осуществляется итерацией по списку
+
 ```scala
     val apiTest : List[APITest]
 
@@ -137,14 +139,14 @@ case class APITest(method: String, path: String, description: String, body: APIT
 Документацию можно генерировать, основываясь на информации о роутинге, 
 которую предоставляет Play Framework.
 
-Смысл в том, чтобы анотировать методы контроллера, которые обрабатывают вызовы API,
+Смысл в том, чтобы аннотировать методы контроллера, которые обрабатывают вызовы API,
 затем получить все маршруты в виде информации об HTTP методе, URL и функции контроллера,
-и отфильтровать аннотиваронные. В аннотацию можно добавить инфрмацию для формирования документации. 
+и отфильтровать аннотированные. В аннотацию можно добавить информацию для формирования документации. 
  
 Для пометки методов контроллера сделана аннотация ```APIDescription```, 
 в качестве параметра которой можно задать описание 
  
- Используестся примерно так
+ Используется примерно так
  
  ```scala
   @APIDescription("Search meme with query")
@@ -156,7 +158,7 @@ case class APITest(method: String, path: String, description: String, body: APIT
  ```
  
 Такая генерация документации реализована в ```models.RoutingDocumentation```.
-Сгенерированная документаия опебликована по адреса ```/apiDoc```
+Сгенерированная документация опубликована по адресу ```/apiDoc```
 
 
 ## Обновление списка шаблонов по расписанию
@@ -165,7 +167,7 @@ case class APITest(method: String, path: String, description: String, body: APIT
 Обновляет шаблоны при запуске приложения и потом каждые 24 часа
  См. ```models.UpdateTemplatesTask```
 
-По хорошему нужен Scheduler с возможностью задавать расписание более продвинутым способом, 
+По-хорошему нужен Scheduler с возможностью задавать расписание более продвинутым способом, 
 например Quartz.
 
 
@@ -173,7 +175,7 @@ case class APITest(method: String, path: String, description: String, body: APIT
 
 Развернут на Heroku  
 
-На скорую руку сооружен GUI чтобы поиграться с API - https://memegenerator-test.herokuapp.com/?apiKey=111
+На скорую руку сооружен GUI, чтобы поиграться с API - https://memegenerator-test.herokuapp.com/?apiKey=111
 
 Сгенерированная документация по API доступна тут https://memegenerator-test.herokuapp.com/apiDoc
 

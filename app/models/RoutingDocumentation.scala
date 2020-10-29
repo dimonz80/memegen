@@ -4,7 +4,6 @@ package models
 import javax.inject._
 import io.circe.generic.JsonCodec
 import play.api.routing.Router
-
 import scala.util.Try
 
 /**

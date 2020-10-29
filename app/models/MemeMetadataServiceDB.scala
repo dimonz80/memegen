@@ -4,11 +4,11 @@ package models
 
 import javax.inject.{Inject, Singleton}
 import play.api.db.{DBApi, Database}
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 import anorm._
 import anorm.SqlParser._
 
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
 
 @Singleton
 class MemeMetadataServiceDB @Inject()(dbApi: DBApi,

@@ -1,18 +1,19 @@
 package ru.dimonz80.tests
 
+import java.io.File
+import java.util.Base64
 import org.scalatest.BeforeAndAfterAll
 import org.scalatestplus.play.PlaySpec
 import io.circe.parser._
 import io.circe.syntax._
-import models.{ImageService, MemeBox, MemeMetadata, MemeMetadataService, MemeRequest, MemeTemplate, MemesService, RemoteMemesService, SaveMemeRequest, UserService}
-import models.mocks.{ImMemoryUserService, InMemoryImageService, InMemoryMemeMetadataService, MockRemoteMemesService}
-import play.api.http.ContentTypes
+import models._
+import models.mocks._
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers._
 import play.api.test._
 import play.api.inject.bind
-import java.io.File
-import java.util.Base64
+
+import play.api.http.ContentTypes
 
 
 /**

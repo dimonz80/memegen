@@ -9,4 +9,3 @@ class ApplicationException(message: String) extends RuntimeException(message) {
   override def fillInStackTrace(): Throwable = this
 }
 
-class UnauthorizedAPIAccessException(message: String) extends ApplicationException(message)

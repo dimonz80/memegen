@@ -18,7 +18,7 @@ trait ImageService {
   /**
    * Сохранить картинку и получить имя
    *
-   * @param data бинарное представлени картинки
+   * @param data бинарное представление картинки
    * @return имя катинки
    */
   def put(data: Array[Byte]): String

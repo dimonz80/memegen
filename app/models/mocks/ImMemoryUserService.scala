@@ -17,7 +17,7 @@ class ImMemoryUserService extends UserService {
   )
 
   /**
-   * Получиль пользователя по имени
+   * Получить пользователя по имени
    *
    * @param userName
    * @return

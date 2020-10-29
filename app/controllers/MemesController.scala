@@ -15,6 +15,7 @@ import models.{APIDescription, ApplicationException, ImageService, MemeBox, Meme
 import play.api.http.{ContentTypes, HttpEntity}
 
 import scala.concurrent.ExecutionContext
+import scala.util.Try
 
 /**
  * Котроллер для API
@@ -114,25 +115,17 @@ class MemesController @Inject()(
       request.body.asJson.map { json =>
         decode[SaveMemeRequest](json.toString) match {
           case Right(SaveMemeRequest(metadata, imageData)) =>
-            val id = metadata.id.map { id =>
+            metadata.id.map { id =>
               memesService.updateMeme(id, metadata.copy(user = Option(user.name)))
-              id
+              Ok(id.asJson)
+            }.orElse {
+              Try(imageData.map(Base64.getDecoder.decode)).toOption.flatten.map { base64Data =>
+                val newId = memesService.createMeme(metadata.copy(user = Option(user.name)), base64Data)
+                Ok(newId.asJson)
+              }
             }.getOrElse {
-
-              val decodedImageData = try {
-                imageData.map(Base64.getDecoder.decode)
-              } catch {
-                case e: Exception => throw new ApplicationException("Can't decode image data")
-              }
-
-              decodedImageData.map { data =>
-                memesService.createMeme(metadata.copy(user = Option(user.name)), data)
-              }.getOrElse {
-                throw new ApplicationException("For new meme require file")
-              }
+              BadRequest(ErrorMessage("Request must contains image in base64 encoding").asJson)
             }
-
-            Ok(id.asJson)
 
           case Left(err: DecodingFailure) => BadRequest(err.asErrorMessage)
           case Left(err) => BadRequest(err.asErrorMessage)

@@ -43,7 +43,9 @@ class APIAction @Inject()(bodyParsers: BodyParsers.Default,
     } yield {
       f(user)
     }).getOrElse {
-      throw new UnauthorizedAPIAccessException("Unautorized")
+      Results.Unauthorized(
+        ErrorMessage("Unauthorized", Map("description" -> "Needs API key")).asJson.toString
+      ).as(ContentTypes.JSON)
     }
   }
 
@@ -56,13 +58,7 @@ class APIAction @Inject()(bodyParsers: BodyParsers.Default,
       }(request)
     }
     catch {
-
-      case e: UnauthorizedAPIAccessException => Future {
-        Results.Unauthorized(
-          ErrorMessage(e.getMessage, Map("description" -> "Needs API key")).asJson.toString
-        ).as(ContentTypes.JSON)
-      }
-
+ 
       case e: ApplicationException => Future {
         Results.BadRequest(ErrorMessage(e.getMessage).asJson.toString()).as(ContentTypes.JSON)
       }
